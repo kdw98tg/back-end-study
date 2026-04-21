@@ -1,4 +1,4 @@
-package com.example.bst.jwt_example.jwt;
+package com.example.bst.jwt_example.jwt.provider;
 
 import java.util.Date;
 
@@ -8,13 +8,19 @@ import org.springframework.stereotype.Component;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class JwtTokenProvider {
-    @Value("${jwt.secret}")
-    private String secretKey;
-    private final Algorithm algorithm;
 
-    public JwtTokenProvider() {
+    private final Algorithm algorithm;
+    private final long expirationMs;
+
+    public JwtTokenProvider(
+            @Value("${jwt.secret}") String secretKey,
+            @Value("${jwt.expiration}") long expirationMs) {
+        this.expirationMs = expirationMs;
         // 1. 서명에 사용할 알고리즘 설정
         algorithm = Algorithm.HMAC512(secretKey);
     }
@@ -22,9 +28,8 @@ public class JwtTokenProvider {
     public String generateToken(String username, String role) {
 
         // 2. 토큰 만료 시간 설정
-        long validaityInMilliseconds = 1000 * 60 * 60 * 2;// 2시간
         Date now = new Date();
-        Date validity = new Date(now.getTime() + validaityInMilliseconds);
+        Date validity = new Date(now.getTime() + expirationMs);
 
         // 3. JWT 토큰 생성
         String token = JWT.create()

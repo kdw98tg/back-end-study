@@ -1,4 +1,4 @@
-package com.example.bst.jwt_example.jwt;
+package com.example.bst.jwt_example.jwt.filter.authentication;
 
 import java.io.IOException;
 
@@ -8,8 +8,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.auth0.jwt.JWT;
 import com.example.bst.jwt_example.auth.model.PrincipalDetails;
+import com.example.bst.jwt_example.jwt.data.JwtData;
+import com.example.bst.jwt_example.jwt.provider.JwtTokenProvider;
 import com.example.bst.jwt_example.user.entity.User;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -85,9 +86,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
 
-        String jwtToken = new JwtTokenProvider().generateToken(principalDetails.getUsername(),
+        String jwtToken = jwtTokenProvider.generateToken(principalDetails.getUsername(),
                 principalDetails.getUser().getRoles());
 
-        response.addHeader("Authorization", "Bearer " + jwtToken);
+        response.addHeader("Authorization", JwtData.BEARER + jwtToken);
     }
 }

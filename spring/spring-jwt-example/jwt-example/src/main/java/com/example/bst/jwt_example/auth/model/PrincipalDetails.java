@@ -8,9 +8,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.bst.jwt_example.user.entity.User;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class PrincipalDetails implements UserDetails {
 
     private User user = null;

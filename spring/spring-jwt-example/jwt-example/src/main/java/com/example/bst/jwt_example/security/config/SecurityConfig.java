@@ -7,29 +7,26 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.filter.CorsFilter;
 
-import com.example.bst.jwt_example.jwt.JwtAuthenticationFilter;
-import com.example.bst.jwt_example.jwt.JwtAuthorizationFilter;
-import com.example.bst.jwt_example.jwt.JwtTokenProvider;
+import com.example.bst.jwt_example.jwt.filter.authentication.JwtAuthenticationFilter;
+import com.example.bst.jwt_example.jwt.filter.authorization.JwtAuthorizationFilter;
+import com.example.bst.jwt_example.jwt.provider.JwtTokenProvider;
 import com.example.bst.jwt_example.user.repository.IUserRepository;
-
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
-    private final CorsFilter corsFilter;
-    private final AuthenticationConfiguration authenticationConfiguration;
-    private final IUserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity _http) throws Exception {
-        //TODO 이거 왜 여기 있어야할까
-        AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
+    public SecurityFilterChain filterChain(
+            HttpSecurity _http,
+            CorsFilter corsFilter,
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            JwtAuthorizationFilter jwtAuthorizationFilter) throws Exception {
 
 
         _http.csrf(csrf -> csrf.disable())
@@ -48,10 +45,35 @@ public class SecurityConfig {
                                                 .anyRequest().permitAll())
 
 
-                .addFilter(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager, userRepository, jwtTokenProvider));
+                .addFilter(jwtAuthenticationFilter)
+                .addFilter(jwtAuthorizationFilter);
                                         
 
         return _http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            AuthenticationManager authenticationManager,
+            JwtTokenProvider jwtTokenProvider) {
+        return new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider);
+    }
+
+    @Bean
+    public JwtAuthorizationFilter jwtAuthorizationFilter(
+            AuthenticationManager authenticationManager,
+            IUserRepository userRepository,
+            JwtTokenProvider jwtTokenProvider) {
+        return new JwtAuthorizationFilter(authenticationManager, userRepository, jwtTokenProvider);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

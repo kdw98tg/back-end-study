@@ -1,7 +1,8 @@
-package com.example.bst.jwt_example.jwt;
+package com.example.bst.jwt_example.jwt.filter.authorization;
 
 import java.io.IOException;
 
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties.Jwt;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -10,6 +11,8 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.bst.jwt_example.auth.model.PrincipalDetails;
+import com.example.bst.jwt_example.jwt.data.JwtData;
+import com.example.bst.jwt_example.jwt.provider.JwtTokenProvider;
 import com.example.bst.jwt_example.user.entity.User;
 import com.example.bst.jwt_example.user.repository.IUserRepository;
 
@@ -54,15 +57,15 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         // 헤더가 제대로 날라옴
         // jwt 토큰을 검증해서 정상적인 사용자인지 확인함
-        if (jwtHeader == null || !jwtHeader.startsWith("Bearer ")) {
+        if (jwtHeader == null || !jwtHeader.startsWith(JwtData.BEARER)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // JWT 토큰을 검증을 해서 정상적인 사용자인지 확인함
         try {
-            String token = jwtHeader.replace("Bearer ", "");
-            String username = new JwtTokenProvider().validateToken(token);
+            String token = jwtHeader.replace(JwtData.BEARER, "");
+            String username = jwtTokenProvider.validateToken(token);
 
             if (username != null) {
                 User userEntity = userRepository.findByUsername(username);
