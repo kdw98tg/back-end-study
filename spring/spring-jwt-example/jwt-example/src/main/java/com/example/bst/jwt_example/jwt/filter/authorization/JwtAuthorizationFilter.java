@@ -2,7 +2,6 @@ package com.example.bst.jwt_example.jwt.filter.authorization;
 
 import java.io.IOException;
 
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties.Jwt;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

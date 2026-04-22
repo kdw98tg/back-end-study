@@ -31,6 +31,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.authenticationManager = _authenticationManager;
         this.jwtTokenProvider = _jwtTokenProvider;
         setAuthenticationManager(authenticationManager);
+        setFilterProcessesUrl("/api/v1/login");
     }
 
     // 로그인 요청을 하면, 로그인 시도를 위해서 실행되는 함수임
@@ -88,6 +89,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String jwtToken = jwtTokenProvider.generateToken(principalDetails.getUsername(),
                 principalDetails.getUser().getRoles());
+
+        System.out.println("jwtToken : " + jwtToken);
 
         response.addHeader("Authorization", JwtData.BEARER + jwtToken);
     }

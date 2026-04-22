@@ -29,10 +29,13 @@ public class CorsConfig {
         config.addAllowedHeader("*");
         // 모든 RESTFUL 요청을 허용함
         config.addAllowedMethod("*");
+        // 클라이언트가 응답을 받을 때, Authorization 헤더를 사용할 수 있도록 허용함
+        config.addExposedHeader("Authorization"); // ← 이 줄을 추가!
 
         // 위에서 세팅한 config 규칙들을 /api/로 시작하는 모든 URL(/**)에 적용하겠다는 의미\
         // (예: /api/users, /api/login 모두 적용)
         source.registerCorsConfiguration("/api/**", config);
+        source.registerCorsConfiguration("/login", config);
 
         return new CorsFilter(source);
     }
